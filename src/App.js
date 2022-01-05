@@ -1,10 +1,17 @@
 import './App.css';
 import Navigation from './components/Navigation/Navigation';
+import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import Logo from './components/Logo/Logo';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import Rank from './components/Rank/Rank';
 import Particles from "react-tsparticles";
-import React, { Component} from 'react';
+import React, { Component } from 'react';
+import Clarifai from 'clarifai';
+
+const app = new Clarifai.App({
+  apiKey: '8ec97c58891449d29a169ebcd8e51449'
+ });
+
 
 const particlesOptions = {
   fpsLimit: 60,
@@ -73,11 +80,38 @@ class App extends Component {
     super();
     this.state = {
       input: '',
+      imageURL: ''
     }
   }
 
   onInputChange = (event) => {
-    console.log(event.target.value);
+    this.setState({input: event.target.value});
+  }
+
+  onButtonSubmit = () => {
+    this.setState({imageURL: this.state.input})
+    app.models
+    .predict(Clarifai.FACE_DETECT_MODEL,
+      this.state.input)
+    .then(response => {
+      console.log('hi', response)
+      if (response) {
+        /*fetch('https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80', {
+          method: 'put',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            id: this.state.user.id
+          })
+        })
+          .then(response => console.log(response.json()))
+          .then(count => {
+            this.setState(Object.assign(this.state.user, { entries: count}))
+          })*/
+
+      }
+      //this.displayFaceBox(this.calculateFaceLocation(response))
+    })
+    .catch(err => console.log(err));
   }
 
   render() {
@@ -88,8 +122,11 @@ class App extends Component {
         <Navigation />
         <Logo />
         <Rank />
-        <ImageLinkForm onInputChange={this.onInputChange}/>
-        {/*<FaceRecognition />*/}
+        <ImageLinkForm
+                onInputChange={this.onInputChange}
+                onButtonSubmit={this.onButtonSubmit}
+        />
+        <FaceRecognition imageURL={this.state.imageURL}/>
       </div>
     );
   }
