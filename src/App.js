@@ -8,8 +8,6 @@ import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import Rank from './components/Rank/Rank';
 import Particles from "react-tsparticles";
 import React, { Component } from 'react';
-import Clarifai from 'clarifai';
-import { response } from 'express';
 
 const particlesOptions = {
   fpsLimit: 60,
@@ -131,13 +129,12 @@ class App extends Component {
   onButtonSubmit = () => {
     this.setState({ imageUrl: this.state.input });
     fetch('http://localhost:3000/imageurl', {
-      method: 'post',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        input: this.state.input
-      })
-    })
-    .then(response => response.json())
+            method: 'post',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              input:this.state.input
+            })
+          }).then(response => response.json())
       .then(response => {
         if (response) {
           fetch('http://localhost:3000/image', {
